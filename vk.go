@@ -37,6 +37,16 @@ func NewVKClient(token string) *VKClient {
 
 // apiRequest makes a GET request to the VK API
 func (c *VKClient) apiRequest(method string, params url.Values) ([]byte, error) {
+	return c.apiRequestWithMethod("GET", method, params)
+}
+
+// apiRequestPost makes a POST request to the VK API
+func (c *VKClient) apiRequestPost(method string, params url.Values) ([]byte, error) {
+	return c.apiRequestWithMethod("POST", method, params)
+}
+
+// apiRequestWithMethod makes a request to the VK API with the specified HTTP method
+func (c *VKClient) apiRequestWithMethod(httpMethod, apiMethod string, params url.Values) ([]byte, error) {
 	if params == nil {
 		params = url.Values{}
 	}
@@ -44,9 +54,17 @@ func (c *VKClient) apiRequest(method string, params url.Values) ([]byte, error) 
 	params.Set("access_token", c.token)
 	params.Set("v", VKAPIVersion)
 
-	urlStr := fmt.Sprintf("%s%s?%s", VKBaseURL, method, params.Encode())
+	var resp *http.Response
+	var err error
 
-	resp, err := c.http.Get(urlStr)
+	if httpMethod == "POST" {
+		urlStr := fmt.Sprintf("%s%s", VKBaseURL, apiMethod)
+		resp, err = c.http.PostForm(urlStr, params)
+	} else {
+		urlStr := fmt.Sprintf("%s%s?%s", VKBaseURL, apiMethod, params.Encode())
+		resp, err = c.http.Get(urlStr)
+	}
+
 	if err != nil {
 		return nil, fmt.Errorf("HTTP request failed: %w", err)
 	}
@@ -208,7 +226,7 @@ func (c *VKClient) SendFile(peerID int, filePath, filename, caption string) (int
 		return 0, err
 	}
 
-	saveJSON, err := c.apiRequest("docs.save", saveParams)
+	saveJSON, err := c.apiRequestPost("docs.save", saveParams)
 	if err != nil {
 		return 0, fmt.Errorf("failed to save document: %w", err)
 	}
@@ -241,7 +259,7 @@ func (c *VKClient) SendFile(peerID int, filePath, filename, caption string) (int
 		sendParams.Set("message", caption)
 	}
 
-	sendJSON, err := c.apiRequest("messages.send", sendParams)
+	sendJSON, err := c.apiRequestPost("messages.send", sendParams)
 	if err != nil {
 		return 0, fmt.Errorf("failed to send message: %w", err)
 	}
@@ -301,7 +319,7 @@ func (c *VKClient) SendAudioMessage(peerID int, filePath, filename, caption stri
 		return 0, err
 	}
 
-	saveJSON, err := c.apiRequest("docs.save", saveParams)
+	saveJSON, err := c.apiRequestPost("docs.save", saveParams)
 	if err != nil {
 		return 0, fmt.Errorf("failed to save document: %w", err)
 	}
@@ -335,7 +353,7 @@ func (c *VKClient) SendAudioMessage(peerID int, filePath, filename, caption stri
 		sendParams.Set("message", caption)
 	}
 
-	sendJSON, err := c.apiRequest("messages.send", sendParams)
+	sendJSON, err := c.apiRequestPost("messages.send", sendParams)
 	if err != nil {
 		return 0, fmt.Errorf("failed to send message: %w", err)
 	}
