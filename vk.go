@@ -307,21 +307,22 @@ func (c *VKClient) SendAudioMessage(peerID int, filePath, filename, caption stri
 	}
 
 	var saveResp struct {
-		Doc struct {
-			ID      int    `json:"id"`
-			OwnerID int    `json:"owner_id"`
-			Title   string `json:"title"`
-		} `json:"doc"`
+		AudioMessage struct {
+			ID        int    `json:"id"`
+			OwnerID   int    `json:"owner_id"`
+			AccessKey string `json:"access_key"`
+		} `json:"audio_message"`
 	}
 	if err := json.Unmarshal(saveJSON, &saveResp); err != nil {
 		return 0, fmt.Errorf("failed to parse save response: %w", err)
 	}
 
-	docID := saveResp.Doc.ID
-	docOwnerID := saveResp.Doc.OwnerID
-	attachment := fmt.Sprintf("doc%d_%d", docOwnerID, docID)
+	audioID := saveResp.AudioMessage.ID
+	audioOwnerID := saveResp.AudioMessage.OwnerID
+	audioAccessKey := saveResp.AudioMessage.AccessKey
+	attachment := fmt.Sprintf("audio_message%d_%d %s", audioOwnerID, audioID, audioAccessKey)
 
-	log.Printf("Audio document saved: %s (ID=%d, OwnerID=%d)", attachment, docID, docOwnerID)
+	log.Printf("Audio saved: %s (ID=%d, OwnerID=%d)", attachment, audioID, audioOwnerID)
 
 	log.Printf("Step 4: Sending message with audio attachment")
 	sendParams := url.Values{
