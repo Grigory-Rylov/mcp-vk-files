@@ -1,0 +1,4 @@
+config.json
+.env
+*.exe
+mcp-vk-files
