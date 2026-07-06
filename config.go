@@ -26,7 +26,10 @@ func LoadConfig() (*Config, error) {
 		"/etc/mcp-vk-files/config.json",
 	}
 	if homeDir != "" {
-		configPaths = append(configPaths, homeDir+"/.config/mcp-vk-files/config.json")
+		configPaths = append(configPaths,
+			homeDir+"/.config/mcp-vk-files/config.json",
+			homeDir+"/.config/vk/config.json",
+		)
 	}
 
 	for _, path := range configPaths {

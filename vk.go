@@ -338,7 +338,7 @@ func (c *VKClient) SendAudioMessage(peerID int, filePath, filename, caption stri
 	audioID := saveResp.AudioMessage.ID
 	audioOwnerID := saveResp.AudioMessage.OwnerID
 	audioAccessKey := saveResp.AudioMessage.AccessKey
-	attachment := fmt.Sprintf("audio_message%d_%d %s", audioOwnerID, audioID, audioAccessKey)
+	attachment := fmt.Sprintf("audio_message%d_%d_%s", audioOwnerID, audioID, audioAccessKey)
 
 	log.Printf("Audio saved: %s (ID=%d, OwnerID=%d)", attachment, audioID, audioOwnerID)
 
